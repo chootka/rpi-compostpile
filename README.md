@@ -4,6 +4,9 @@
 
 1/ Be sure to include an empty file named `ssh` in the root of your newly flashed SD card so you can SSH into it later  
 
+2/ You will also want to enable SPI on by default (this is how the Rasbperry Pi will communicate with our radio) by editing the file called `config.txt` in the root of the Rasbperry Pi image and making sure that this is in there:  
+`dtparam=spi=on`
+
 2/ Connect to your pi with user `pi` and default password `raspberry`  
 `$ ssh pi@raspberrypi.local`  
   
@@ -29,3 +32,11 @@
 `$ sudo python /home/pi/p2p/parent-children.py &`
 
 7/ Reboot
+
+### Additional Resources ###  
+Image to ASCII art converter: http://picascii.com/  
+https://github.com/nRF24/RF24  
+https://github.com/nRF24/RF24Network  
+http://thezanshow.com/electronics-tutorials/raspberry-pi/tutorial-34-35  
+http://spencernusbaum.com/wordpress/index.php/2018/07/22/working-with-the-nrf24l01-transcievers-on-the-raspberry-pi-and-arduino/  
+https://howtomechatronics.com/tutorials/arduino/how-to-build-an-arduino-wireless-network-with-multiple-nrf24l01-modules/  
