@@ -17,7 +17,7 @@ import requests
 
 ########### RADIO CONFIGURATION ###########
 # Setup for GPIO 15 CE and CE0 CSN for RPi B+ with SPI Speed @ 8Mhz
-radio = RF24(RPI_BPLUS_GPIO_J8_15, RPI_BPLUS_GPIO_J8_24, BCM2835_SPI_SPEED_8MHZ)
+radio = RF24(RPI_BPLUS_GPIO_J8_15, RPI_BPLUS_GPIO_J8_24) #, BCM2835_SPI_SPEED_8MHZ)
 
 # Count up so we send a packet to all children
 txNum = 0
