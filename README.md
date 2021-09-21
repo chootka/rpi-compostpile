@@ -15,7 +15,7 @@
 
 4/ Install git, RF24 for radio comms and other image processing libraries  
 `$ sudo apt-get update`  
-`$ sudo apt-get install git libboost-python-dev python-pip libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev pillow python-requests -y`  
+`$ sudo apt-get install git libboost-python-dev python-pip libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev python-pil python-requests -y`  
 `$ git clone https://github.com/nRF24/RF24.git`  
 `$ cd RF24`  
 `$ sudo make install`  
