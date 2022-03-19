@@ -505,69 +505,69 @@ url = 'https://weise7.org/plant-2-plant/save'
 # DEFs
 #
 def select_text(index=0):
-    return texts[index]
+	return texts[index]
 
 def save_images():
-    for child in received_payloads:
-        files = { 'file': ('image.bmp', io.BytesIO(received_payloads[child]), 'image/bmp') }
-        r = requests.post(url, files=files)
+	for child in received_payloads:
+		files = { 'file': ('image.bmp', io.BytesIO(received_payloads[child]), 'image/bmp') }
+		r = requests.post(url, files=files)
 
 def check_responses():
-    # first check if the dictionary has entries for all transmitting children
-    # print('length of received_payloads dict {} should == num_children {}'.format(len(received_payloads), num_children))
-    if len(received_payloads) < num_children:
-        return False
+	# first check if the dictionary has entries for all transmitting children
+	# print('length of received_payloads dict {} should == num_children {}'.format(len(received_payloads), num_children))
+	if len(received_payloads) < num_children:
+		return False
 
-    # then check if each child has the correct number of entries to its list
-    for child in received_payloads:
-        # print('len(received_payloads[child])/4 {} should == transmission_id {}'.format(len(received_payloads[child])/4, transmission_id))
-        # divide by four because we are adding batches of 4 packets per tranmission
-        if len(received_payloads[child])/4 < transmission_id:
-            return False
+	# then check if each child has the correct number of entries to its list
+	for child in received_payloads:
+		# print('len(received_payloads[child])/4 {} should == transmission_id {}'.format(len(received_payloads[child])/4, transmission_id))
+		# divide by four because we are adding batches of 4 packets per tranmission
+		if len(received_payloads[child])/4 < transmission_id:
+			return False
 
-    print("responses are good!")
-    return True
+	print("responses are good!")
+	return True
 
 def handle_timeouts():
-    # fill the spot in the file with whatever other chars so we can move on
-    if len(received_payloads) < num_children:
-        # print('missing a key!')
+	# fill the spot in the file with whatever other chars so we can move on
+	if len(received_payloads) < num_children:
+		# print('missing a key!')
 
-        tx_keys = received_payloads.keys()
-        for t in t_indexes:
-            if not t in tx_keys:
-                # print('will create key {}'.format(t))
-                received_payloads[t] = bytearray(b'__')
-                # print(received_payloads)
+		tx_keys = received_payloads.keys()
+		for t in t_indexes:
+			if not t in tx_keys:
+				# print('will create key {}'.format(t))
+				received_payloads[t] = bytearray(b'__')
+				# print(received_payloads)
 
-    # then check if each child has the correct number of entries to its list
-    for t in received_payloads:
-        # divide by four because we are adding batches of 4 packets per tranmission
-        if len(received_payloads[t])/4 < transmission_id:
-            #print('{} was missing a packet!'.format(t))
-            received_payloads[t].extend(b'__')
-            #print(received_payloads[t])
+	# then check if each child has the correct number of entries to its list
+	for t in received_payloads:
+		# divide by four because we are adding batches of 4 packets per tranmission
+		if len(received_payloads[t])/4 < transmission_id:
+			#print('{} was missing a packet!'.format(t))
+			received_payloads[t].extend(b'__')
+			#print(received_payloads[t])
 
 def read_file_data(channel=0):
-    if radio.available():
-        while radio.available():
-            p = radio.available_pipe()
-            if (p[0] and p[1]):
-                #print('# # # # # # # # # # # # # #\n')
-                #print('p {}\n'.format(p))
+	if radio.available():
+		while radio.available():
+			p = radio.available_pipe()
+			if (p[0] and p[1]):
+				#print('# # # # # # # # # # # # # #\n')
+				#print('p {}\n'.format(p))
 
-                len = radio.getDynamicPayloadSize()
-                file_payload = radio.read(len)
+				len = radio.getDynamicPayloadSize()
+				file_payload = radio.read(len)
 
-                key = t_indexes[p[1]-1]
-                #print('key {}'.format(key))
-                if key in received_payloads:
-                    received_payloads[key].extend(file_payload)
-                else:
-                    received_payloads[key] = bytearray(file_payload)
+				key = t_indexes[p[1]-1]
+				#print('key {}'.format(key))
+				if key in received_payloads:
+					received_payloads[key].extend(file_payload)
+				else:
+					received_payloads[key] = bytearray(file_payload)
 
-                # print('Received payload {} on pipe {}\n'.format(file_payload, key));
-                print('All saved payloads {}\n'.format(received_payloads));
+				# print('Received payload {} on pipe {}\n'.format(file_payload, key));
+				print('All saved payloads {}\n'.format(received_payloads));
 
 ##########################################
 # INIT
@@ -581,105 +581,105 @@ max_payload_size = len(send_payload)
 # forever loop
 while 1:
 
-    # sending data
-    if status == 0:
-        # First, stop listening so we can talk.
-        radio.stopListening()
+	# sending data
+	if status == 0:
+		# First, stop listening so we can talk.
+		radio.stopListening()
 
-        # Send next chunk
-        payload = send_payload[payload_index:payload_index+payload_size]
+		# Send next chunk
+		payload = send_payload[payload_index:payload_index+payload_size]
 
-        print('Status 0: Sending {}'.format(payload))
+		print('Status 0: Sending {}'.format(payload))
 
-        for n in range(0, num_children):
-            # open the writing pipe with the address of a receiver child
-            radio.openWritingPipe(receivers[n])
-            result = radio.write(payload.encode('utf-8'))
+		for n in range(0, num_children):
+			# open the writing pipe with the address of a receiver child
+			radio.openWritingPipe(receivers[n])
+			result = radio.write(payload.encode('utf-8'))
 
-            print('successful send to receiver child {}? {}'.format(receivers[n], result))
+			print('successful send to receiver child {}? {}'.format(receivers[n], result))
 
-            if result:
-                txNum += 1
-                if (txNum >= num_children):
-                    #print('Sent successfully to all receiving children.')
-                    txNum = 0
-                    status = 1
-            else:
-                print('TX failed')
+			if result:
+				txNum += 1
+				if (txNum >= num_children):
+					#print('Sent successfully to all receiving children.')
+					txNum = 0
+					status = 1
+			else:
+				print('TX failed')
 
-    # receiving data
-    elif status == 1:
-        #print('Status 1: Waiting for data from transmitting children Arduinos\n')
+	# receiving data
+	elif status == 1:
+		#print('Status 1: Waiting for data from transmitting children Arduinos\n')
 
-        # Now we wait to get the data back from the sender Arduino
-        radio.startListening()
+		# Now we wait to get the data back from the sender Arduino
+		radio.startListening()
 
-        # Wait here until we have heard from everyone, or timeout
-        started_waiting_at = millis()
-        timeout = False
+		# Wait here until we have heard from everyone, or timeout
+		started_waiting_at = millis()
+		timeout = False
 
-        while (not check_responses()) and (not timeout):
-            for n in range(0, num_children):
-                # open the reading pipe with the address of a transmitting child
-                radio.openReadingPipe(n+1, transmitters[n])
-                # Read the file data and save it to our dict once it shows up
-                read_file_data()
+		while (not check_responses()) and (not timeout):
+			for n in range(0, num_children):
+				# open the reading pipe with the address of a transmitting child
+				radio.openReadingPipe(n+1, transmitters[n])
+				# Read the file data and save it to our dict once it shows up
+				read_file_data()
 
-                if (millis() - started_waiting_at) > 200:
-                    timeout = True
+				if (millis() - started_waiting_at) > 200:
+					timeout = True
 
-        # Describe the results
-        if timeout:
-            # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-            # print('Fail - Response timed out. Handling and then moving on.')
+		# Describe the results
+		if timeout:
+			# print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+			# print('Fail - Response timed out. Handling and then moving on.')
 
-            handle_timeouts()
-            timeout = False
+			handle_timeouts()
+			timeout = False
 
-            # print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n')
-        else:
-            #print('Success - Moving onto transmission {}'.format(transmission_id))
-            # Start a new round of transmission
-            transmission_id += 1
+			# print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n')
+		else:
+			#print('Success - Moving onto transmission {}'.format(transmission_id))
+			# Start a new round of transmission
+			transmission_id += 1
 
-            # Step through the payload...
-            payload_index += payload_size
+			# Step through the payload...
+			payload_index += payload_size
 
-            # If we have stepped through the entire payload, save to database
-            if payload_index >= max_payload_size:
-                status = 2
-            else:
-                # otherwise, set status back to 0 so we transmit again
-                status = 0
+			# If we have stepped through the entire payload, save to database
+			if payload_index >= max_payload_size:
+				status = 2
+			else:
+				# otherwise, set status back to 0 so we transmit again
+				status = 0
 
-    # saving data
-    elif status == 2:
-        # print('Status 2: Received all image data back, saving image locally and to DB\n')
+	# saving data
+	elif status == 2:
+		# print('Status 2: Received all image data back, saving image locally and to DB\n')
 
-        # Now we save it to our web app endpoint
-        save_images()
+		# Now we save it to our web app endpoint
+		save_images()
 
-        # reset everything:
-	if text_id == len(texts)-1:
-	    text_id = 0
+		# reset everything:
+		if text_id == len(texts)-1:
+			text_id = 0
+		else:
+			text_id += 1
+			send_payload = select_text(text_id)
+			max_payload_size = len(send_payload)
+			#print('New max_payload_size {}'.format(max_payload_size))
+			received_payloads = dict()
+			payload_index = 0
+			transmission_id = 1
+			txNum = 0
+			status = 0
+
+	# debugging
+	elif status == 3:
+		continue
+		# test status, print nothing, go back to beginning of loop
+
+	# error; status equals something strange
 	else:
-	    text_id += 1
-        send_payload = select_text(text_id)
-        max_payload_size = len(send_payload)
-        #print('New max_payload_size {}'.format(max_payload_size))
-        received_payloads = dict()
-        payload_index = 0
-        transmission_id = 1
-        txNum = 0
-        status = 0
+		print('Status error! {}\n'.format(status))
 
-    # debugging
-    elif status == 3:
-        continue
-        # test status, print nothing, go back to beginning of loop
-
-    # error; status equals something strange
-    else:
-        print('Status error! {}\n'.format(status))
-
-    time.sleep(0.1)
+	time.sleep(0.1)
